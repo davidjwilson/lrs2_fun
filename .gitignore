@@ -1,0 +1,5 @@
+#don't want to add the fits files
+data/*
+#or the spectra really
+spectra/*
+
