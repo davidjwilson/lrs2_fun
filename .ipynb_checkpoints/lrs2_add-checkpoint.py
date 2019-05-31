@@ -49,7 +49,7 @@ def coadd_by_star(path, star, band):
     f, e = spectra_adder(np.array(fs),np.array(es))
     return w, f, e
 
-def plot_spectrum(ws, fs, star):
+def plot_spectrum(ws, fs, star, figsave, figsavepath):
     """
     plots all bands for a star. ws and fs are collections of w and f arrays
     """
@@ -58,6 +58,10 @@ def plot_spectrum(ws, fs, star):
         plt.plot(w,f)
     plt.xlabel('Wavelength (\AA)', size=20)
     plt.ylabel('Flux (erg s$^{-1}$cm$^{-2}$\AA$^{-1}$)', size=20)
+    plt.tight_layout()
+    if figsave:
+        plt.savefig(figsavepath+star+'_lrs2.png', dpi=150)
+        plt.savefig(figsavepath+star+'_lrs2.pdf', dpi=150)
     plt.show()
     plt.close()
 
@@ -71,7 +75,7 @@ def stars_finder(path):
         stars.append(fits.getheader(path+spectrum,0)['OBJECT'])
     return np.unique(stars)
     
-def lrs2_add(path='data/', plot=True, save=True, bands = ['uv', 'orange', 'red', 'farred'], savepath='spectra/'):
+def lrs2_add(path='data/', plot=True, save=True, bands = ['uv', 'orange', 'red', 'farred'], savepath='spectra/', figsave=True, figsavepath='plots/'):
     """
     Main function. Does not use dates yet.
     """
@@ -88,7 +92,7 @@ def lrs2_add(path='data/', plot=True, save=True, bands = ['uv', 'orange', 'red',
             fs.append(f)
             es.append(e)
         if plot:
-            plot_spectrum(ws, fs, star)
+            plot_spectrum(ws, fs, star, figsave, figsavepath)
 
                 
 
