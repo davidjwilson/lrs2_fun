@@ -17,13 +17,18 @@ lrs2_add(path='data/', plot=True, save=True, bands = ['uv', 'orange', 'red', 'fa
 
 """
 
-def spectra_adder(fluxes, errors):
+def coadd_flux(f_array, e_array):
     """
-    combines the flux
+    Returns a variance-weighted coadd with standard error of the weighted mean (variance weights, scale corrected).
+    f_array and e_arrays are collections of flux and error arrays, which should have the same lenth and wavelength scale
     """
-    weight_f = np.average(fluxes, axis =0, weights=(1/errors))
-    weight_e = np.average((weight_f - fluxes)**2, axis=0, weights = (1/errors))**0.5
-    return weight_f, weight_e
+    weights = 1 / (e_array**2)
+    flux = np.average(f_array, axis =0, weights = weights)
+    var = 1 / np.sum(weights, axis=0)
+    rcs = np.sum((((flux - f_array)**2) * weights), axis=0) / (len(f_array)-1) #reduced chi-squared
+    error = (var * rcs)**0.5
+    return flux, error
+
 
 def save_ecsv(w, f, e, star, band, savepath):
     """
@@ -46,7 +51,7 @@ def coadd_by_star(path, star, band):
             fs.append(data[1])
             es.append(data[3]) #2 is sky
             w = data[0] #fixed w scale, no need to interpolate
-    f, e = spectra_adder(np.array(fs),np.array(es))
+    f, e = coadd_flux(np.array(fs),np.array(es))
     return w, f, e
 
 def plot_spectrum(ws, fs, star, figsave, figsavepath):
